@@ -1,0 +1,1 @@
+/Users/jpu2532/.local/share/omf/themes/eden/fish_prompt.fish
