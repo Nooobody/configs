@@ -81,7 +81,7 @@ call plug#end()
 colorscheme onedark
 
 let g:AutoPairsUseInsertedCount = 1
-let g:ctrlsf_ignore_dir = ['node_modules']
+let g:ctrlsf_ignore_dir = ['node_modules', 'android', 'ios', 'build']
 
 let b:ale_fixers = {
   \ 'typescript': ['eslint'],
