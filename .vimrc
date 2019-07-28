@@ -88,18 +88,25 @@ let b:ale_fixers = {
   \ 'javascript': ['eslint']
 \ }
 
-noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 10, 2)<CR>
-noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 10, 2)<CR>
-noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 10, 4)<CR>
-noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 10, 4)<CR>
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 5, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 5, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 5, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 5, 4)<CR>
 
-nmap <leader>fp <Plug>CtrlSFPrompt
-nmap <leader>fs <Plug>CtrlSFCwordPath
-nmap <leader>ff <Plug>CtrlSFPwordPath
+nnoremap <leader>fp <Plug>CtrlSFPrompt
+nnoremap <leader>fs <Plug>CtrlSFCwordPath
+nnoremap <leader>ff <Plug>CtrlSFPwordPath
 nnoremap <leader>fz :FZF<CR>
 
 nnoremap <silent> gd :ALEGoToDefinition<CR>
 nnoremap <silent> <leader>fr :ALEFindReferences<CR>
+
+nnoremap <silent> <leader>bn :bn<CR>
+nnoremap <silent> <leader>bp :bp<CR>
+nnoremap <silent> <leader>bl :ls<CR>
+nnoremap <leader>bg :ls<CR>:buffer<Space>
+
+nmap <silent> <leader>fi "iyiwgg/import<CR>vip<ESC>oimport <ESC>"ipysiw{A from "./<ESC>"ip<C-o><C-o><C-o>
 
 function! DoPrettyXML()
   " save the filetype so we can restore it later
