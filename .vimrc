@@ -93,9 +93,9 @@ noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 5, 2)<CR>
 noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 5, 4)<CR>
 noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 5, 4)<CR>
 
-nnoremap <leader>fp <Plug>CtrlSFPrompt
-nnoremap <leader>fs <Plug>CtrlSFCwordPath
-nnoremap <leader>ff <Plug>CtrlSFPwordPath
+nmap <leader>fp <Plug>CtrlSFPrompt
+nmap <leader>fs <Plug>CtrlSFCwordPath
+nmap <leader>ff <Plug>CtrlSFPwordPath
 nnoremap <leader>fz :FZF<CR>
 
 nnoremap <silent> gd :ALEGoToDefinition<CR>
