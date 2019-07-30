@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if tmux has-session -t dev ; then
+	echo "Session in progress, attaching"
+else
+	cd ~/Documents/Projects
+	tmux new-session -d -s dev
+	tmux split-window -h
+	tmux split-window -v
+	tmux split-window -v -t 1
+fi
+
+tmux attach-session -d -t dev
