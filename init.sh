@@ -5,6 +5,8 @@ apt-get install vim git build-essential curl fish tmux fzf silversearcher-ag
 chsh -s /usr/bin/fish
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash  
 
+fisher https://github.com/amio/fish-theme-eden
+
 rm ~/.vimrc
 ln -s ./.vimrc ~/.vimrc
 echo ".vimrc installed!"
