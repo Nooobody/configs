@@ -13,7 +13,6 @@ set cursorline
 
 set autoread
 set hlsearch
-set autochdir
 
 set noerrorbells
 set novisualbell
@@ -33,12 +32,10 @@ set wrap
 set nobackup
 set noswapfile
 
-set background=dark
+" autocmd BufEnter * silent! lcd %:p:h
 
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-h> <C-W>h
-map <C-l> <C-W>l
+map <C-j> <C-d>
+map <C-k> <C-u>
 
 set laststatus=2
 set statusline=\ %F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ Column:\ %c
@@ -70,29 +67,46 @@ Plug 'dbakker/vim-projectroot'
 Plug 'dyng/ctrlsf.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
+Plug 'kana/vim-textobj-entire'
+Plug 'kana/vim-textobj-line'
+Plug 'kana/vim-textobj-user'
 Plug 'mattn/emmet-vim'
 Plug 'mhinz/vim-signify'
 Plug 'michaeljsmith/vim-indent-object'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'ryanoasis/vim-devicons'
 Plug 'sheerun/vim-polyglot'
+Plug 'skywind3000/asyncrun.vim'
 Plug 'terryma/vim-smooth-scroll'
 Plug 'tmhedberg/matchit'
 Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-scripts/ReplaceWithRegister'
 Plug 'vim-scripts/auto-pairs-gentle'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-Plug 'morhetz/gruvbox'
+Plug 'gruvbox-community/gruvbox'
 " Plug 'trusktr/seti.vim'
 
 call plug#end()
 
+let g:gruvbox_contrast_dark = 'hard'
+
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+endif
+
+let g:gruvbox_invert_selection='0'
+
 colorscheme gruvbox
 " colorscheme seti
+
+let g:asyncrun_open = 8
+command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
+
+noremap <leader>cc :call asyncrun#quickfix_toggle(8)<CR>
 
 let g:AutoPairsShortcutJump = ''
 let g:AutoPairsShortcutFastWrap = ''
@@ -102,7 +116,10 @@ let g:AutoPairsMoveCharacter = ''
 
 let g:ctrlsf_ignore_dir = ['node_modules', 'android', 'ios', 'build']
 
+let g:fzf_preview_window = 'right:60%'
+
 nmap <silent> <leader>gs :G<CR>
+nmap <silent> <C-s> :G<CR>
 
 noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 2, 2)<CR>
 noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 2, 2)<CR>
@@ -113,10 +130,11 @@ vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
 
 nmap <leader>fp <Plug>CtrlSFPrompt
-nmap <leader>fs <Plug>CtrlSFCwordPath
-nmap <leader>ff <Plug>CtrlSFPwordPath
+nmap <leader>fc <Plug>CtrlSFCwordExec
 nnoremap <leader>fz :GFiles --exclude-standard --others --cached<CR>
+nnoremap <leader>fb :Buffers<CR>
 nnoremap <leader>fgz :FZF<CR>
+nnoremap <leader>ft :CtrlSF TODO
 
 nmap gd <Plug>(coc-definition)
 nmap <leader>fr <Plug>(coc-references)
@@ -133,6 +151,8 @@ nnoremap <silent> <leader>vr :so $MYVIMRC<CR>
 nmap <silent> <leader>s :source ~/session.vim<CR>
 let g:coc_disable_startup_warning = 1
 
+imap <silent> <C-e> <Plug>(emmet-expand-abbr)
+
 function! <SID>AutoProjectRootCD()
   try
     if &ft != 'help'
@@ -142,7 +162,7 @@ function! <SID>AutoProjectRootCD()
     " Silently ignore invalid buffers
   endtry
 endfunction
-" autocmd BufEnter * call <SID>AutoProjectRootCD()
+autocmd BufEnter * call <SID>AutoProjectRootCD()
 
 nmap <silent> <leader>fi "iyiwgg/import<CR>vip<ESC>oimport <ESC>"ipysiw{A from "./<ESC>"ip<C-o><C-o><C-o>
 
