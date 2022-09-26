@@ -176,18 +176,27 @@ if isdirectory('./node_modules') && isdirectory('./node_modules/eslint')
   let g:coc_global_extensions += ['coc-eslint']
 endif
 
-function! ShowDocIfNoDiagnostic(timer_id)
-  if (coc#float#has_float() == 0 && CocHasProvider('hover') == 1)
-    silent call CocActionAsync('doHover')
-  endif
-endfunction
+nnoremap <silent> K :call CocAction('doHover')<CR>
 
-function! s:show_hover_doc()
-  call timer_start(500, 'ShowDocIfNoDiagnostic')
-endfunction
+" function! ShowDocIfNoDiagnostic(timer_id)
+"   let cword = expand('<cword>')
+"   if (cword != g:coc_hover_cache)
+"     return
+"   endif
 
-autocmd CursorHoldI * :call <SID>show_hover_doc()
-autocmd CursorHold * :call <SID>show_hover_doc()
+"   if (coc#float#has_float() == 0 && CocHasProvider('hover') == 1)
+"     silent call CocActionAsync('doHover')
+"   endif
+" endfunction
+
+" function! s:show_hover_doc()
+"   let cword = expand('<cword>')
+"   let g:coc_hover_cache = cword
+"   call timer_start(500, 'ShowDocIfNoDiagnostic')
+" endfunction
+
+" autocmd CursorHoldI * :call <SID>show_hover_doc()
+" autocmd CursorHold * :call <SID>show_hover_doc()
 
 autocmd WinEnter * call popup_clear()
 
@@ -203,8 +212,6 @@ function! <SID>AutoProjectRootCD()
   endtry
 endfunction
 autocmd BufEnter * call <SID>AutoProjectRootCD()
-
-nmap <silent> <leader>fi "iyiwgg/import<CR>vip<ESC>oimport <ESC>"ipysiw{A from "./<ESC>"ip<C-o><C-o><C-o>
 
 function! DoPrettyXML()
   " save the filetype so we can restore it later
