@@ -25,6 +25,10 @@ syntax enable
 set encoding=utf8
 set smarttab
 
+"set fileformat=unix
+set fileformats=unix,dos
+set ffs=unix,dos
+
 set ai
 set si
 set wrap
@@ -79,6 +83,8 @@ Plug 'sheerun/vim-polyglot'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'terryma/vim-smooth-scroll'
 Plug 'tmhedberg/matchit'
+Plug 'psf/black'
+Plug 'nvie/vim-flake8'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
@@ -86,6 +92,7 @@ Plug 'tpope/vim-surround'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-scripts/ReplaceWithRegister'
 Plug 'vim-scripts/auto-pairs-gentle'
+Plug 'luochen1990/rainbow'
 Plug 'gruvbox-community/gruvbox'
 " Plug 'trusktr/seti.vim'
 
@@ -102,6 +109,8 @@ let g:gruvbox_invert_selection='0'
 
 colorscheme gruvbox
 " colorscheme seti
+
+let g:rainbow_active = 1
 
 let g:asyncrun_open = 8
 command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
@@ -120,6 +129,7 @@ let g:fzf_preview_window = 'right:60%'
 
 nmap <silent> <leader>gs :G<CR>
 nmap <silent> <C-s> :G<CR>
+nmap <silent> <leader>gb :Git blame<CR>
 
 noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 2, 2)<CR>
 noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 2, 2)<CR>
@@ -135,9 +145,15 @@ nnoremap <leader>fz :GFiles --exclude-standard --others --cached<CR>
 nnoremap <leader>fb :Buffers<CR>
 nnoremap <leader>fgz :FZF<CR>
 nnoremap <leader>ft :CtrlSF TODO
+nnoremap gsr :%s///gc<Left><Left><Left><Left>
 
-nmap gd <Plug>(coc-definition)
-nmap <leader>fr <Plug>(coc-references)
+nnoremap <leader>dnl o// eslint-disable-next-line 
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <leader>rn <Plug>(coc-rename)
 
 nnoremap <silent> <leader>bn :bn<CR>
 nnoremap <silent> <leader>bp :bp<CR>
@@ -145,11 +161,35 @@ nnoremap <silent> <leader>bb :bp<CR>
 nnoremap <silent> <leader>bl :ls<CR>
 nnoremap <leader>bg :ls<CR>:buffer<Space>
 
-nnoremap <silent> <leader>e :Explore<CR>
+nnoremap <silent> <leader>e :Lexplore %:p:h<CR>
 nnoremap <silent> <leader>vr :so $MYVIMRC<CR>
 
 nmap <silent> <leader>s :source ~/session.vim<CR>
 let g:coc_disable_startup_warning = 1
+let g:coc_global_extensions = ['coc-tsserver']
+
+if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
+  let g:coc_global_extensions += ['coc-prettier']
+endif
+
+if isdirectory('./node_modules') && isdirectory('./node_modules/eslint')
+  let g:coc_global_extensions += ['coc-eslint']
+endif
+
+function! ShowDocIfNoDiagnostic(timer_id)
+  if (coc#float#has_float() == 0 && CocHasProvider('hover') == 1)
+    silent call CocActionAsync('doHover')
+  endif
+endfunction
+
+function! s:show_hover_doc()
+  call timer_start(500, 'ShowDocIfNoDiagnostic')
+endfunction
+
+autocmd CursorHoldI * :call <SID>show_hover_doc()
+autocmd CursorHold * :call <SID>show_hover_doc()
+
+autocmd WinEnter * call popup_clear()
 
 imap <silent> <C-e> <Plug>(emmet-expand-abbr)
 
@@ -203,4 +243,13 @@ command! FormatJSON call DoPrettyJSON()
 nnoremap <silent> gpj :FormatJSON<CR>
 nnoremap <silent> gpx :FormatXML<CR>
 
+function! NetrwMapping()
+  nmap <buffer> h /\.\.\/<CR><CR><ESC>
+  nmap <buffer> l <CR>
+  nmap <buffer> H <CR>:Lexplore<CR>
+  nmap <buffer> q :q<CR>
+  nmap <buffer> <leader> <leader>
+endfunction
+
+autocmd filetype netrw call NetrwMapping()
 autocmd VimLeave * :mksession! ~/session.vim
