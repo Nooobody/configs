@@ -7,12 +7,40 @@ set guioptions-=L
 language en
 set guifont=Source\ Code\ Pro:h12
 
+let g:kek_font = 'Source\ Code\ Pro:h'
+let g:kek_font_size = 12
+
+function! SetFont()
+  execute ':set guifont=' . g:kek_font . g:kek_font_size
+endfunction
+
+function! DoIncreaseFont()
+  let g:kek_font_size = g:kek_font_size + 2
+  call SetFont()
+endfunction
+
+function! DoDecreaseFont()
+  let g:kek_font_size = g:kek_font_size - 2
+  call SetFont()
+endfunction
+
+function! DoDefaultFont()
+  let g:kek_font_size = 12
+  call SetFont()
+endfunction
+
+command! IncreaseFont call DoIncreaseFont()
+command! DecreaseFont call DoDecreaseFont()
+command! DefaultFont call DoDefaultFont()
+nnoremap <silent> <leader>ffa :IncreaseFont<CR>
+nnoremap <silent> <leader>ffz :DecreaseFont<CR>
+nnoremap <silent> <leader>ffd :DefaultFont<CR>
+
+let $FZF_DEFAULT_COMMAND='ag -g "" --ignore node_modules'
+
 nnoremap <silent> <leader>ot :!start "C:\Program Files\Git\git-bash.exe"<cr>
 nnoremap <leader>fgp :FZF ~/Documents/Projects<CR>
 nnoremap <leader>og :e ~/.gvimrc<cr>
-
-let g:screen_size_restore_pos = 1
-let g:screen_size_by_vim_instance = 1
 
 autocmd Filetype vue setlocal cursorline!
 autocmd Filetype vue setlocal relativenumber!
@@ -70,4 +98,3 @@ if has("gui_running")
   autocmd VimEnter * call ScreenRestore()
   autocmd VimLeavePre * call ScreenSave()
 endif
-
