@@ -31,12 +31,12 @@ set.listchars = {
 }
 
 -- Powershell options:
-set.shell = vim.fn.executable "pwsh" == 1 and "pwsh" or "powershell"
-set.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
-set.shellredir = "-RedirectStandardOutput %s -NoNewWindow -Wait"
-set.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
-set.shellquote = ""
-set.shellxquote = ""
+-- set.shell = vim.fn.executable "pwsh" == 1 and "pwsh" or "powershell"
+-- set.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+-- set.shellredir = "-RedirectStandardOutput %s -NoNewWindow -Wait"
+-- set.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
+-- set.shellquote = ""
+-- set.shellxquote = ""
 
 -- vim.keymap.set('n', '<Leader>ot', '<C-W>v<C-W>L:lcd %:p:h<CR>:terminal<CR>i')
 -- vim.keymap.set('t', '<ESC>', [[<C-\><C-N>]])
@@ -55,6 +55,12 @@ vim.keymap.set('n', '<ESC>', ':noh<CR>', { silent = true })
 vim.keymap.set('n', '<C-6>', '<C-^>', { silent = true })
 
 vim.keymap.set('n', '<leader>fx', ':silent %!xmllint --encode UTF-8 --format -<CR>')
+
+vim.keymap.set('n', '<leader>hi', function()
+  vim.cmd [[ 
+    echo synIDattr(synID(line('.'), col('.'), 1), 'name') . ' -> ' . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')
+  ]]
+end)
 
 vim.opt.path:remove "/usr/include"
 vim.opt.path:append "**"
@@ -256,7 +262,9 @@ end)
 
 require('colorizer').setup()
 
-require('toggleterm').setup({})
+require('toggleterm').setup({
+  shade_terminals = true,
+})
 vim.keymap.set('n', '<Leader>ot', ':ToggleTerm size=80 direction=vertical dir=git_dir<CR>')
 
 local lazygit = require('toggleterm.Terminal').Terminal:new({ 
@@ -387,6 +395,7 @@ require('telescope').setup({
   }
 })
 
+vim.keymap.set('n', '<leader>cs', function() builtin.colorscheme({ enable_preview = true }) end)
 vim.keymap.set('n', '<leader>tsl', builtin.builtin)
 vim.keymap.set('n', '<leader>tst', builtin.treesitter)
 vim.keymap.set('n', '<leader>glb', builtin.git_branches)
@@ -394,8 +403,8 @@ vim.keymap.set('n', '<leader>gls', builtin.git_stash)
 vim.keymap.set('n', '<leader>fz', function() builtin.find_files({ no_ignore = true, no_ignore_parent = true }) end)
 vim.keymap.set('n', '<leader>fb', function() builtin.buffers({ sort_lastused = true, ignore_current_buffer = true, sort_mru = true }) end)
 vim.keymap.set('n', '<leader>fl', builtin.live_grep)
-vim.keymap.set('n', '<leader>fgp', function() builtin.find_files({ cwd = '~/Documents/Github' }) end)
-vim.keymap.set('n', '<leader>fgsp', function() builtin.find_files({ cwd = '~/Documents/Github', no_ignore = true, no_ignore_parent = true }) end)
+vim.keymap.set('n', '<leader>fgp', function() builtin.find_files({ cwd = '~/Documents/Projects' }) end)
+vim.keymap.set('n', '<leader>fgsp', function() builtin.find_files({ cwd = '~/Documents/Projects', no_ignore = true, no_ignore_parent = true }) end)
 vim.keymap.set('n', '<leader>gs', builtin.git_status)
 
 require('indent_blankline').setup({
@@ -405,7 +414,7 @@ require('indent_blankline').setup({
 
 require('treesitter-context').setup()
 require('nvim-treesitter.configs').setup {
-  ensure_installed = { 'javascript', 'typescript', 'json', 'c_sharp', 'css', 'dockerfile', 'dot', 'html', 'python', 'lua', 'query' },
+  ensure_installed = { 'javascript', 'typescript', 'json', 'c_sharp', 'css', 'dockerfile', 'dot', 'html', 'python', 'lua', 'vim', 'query', 'c', 'cpp' },
   playground = {
     enable = true
   },
@@ -437,6 +446,7 @@ require('nvim-treesitter.configs').setup {
 }
 
 vim.cmd 'colorscheme aurora'
+vim.cmd [[let g:terminal_color_8 = '#dc143c']] -- Terminal Error
 
 vim.g.ctrlsf_ignore_dir = { 'node_modules' }
 
