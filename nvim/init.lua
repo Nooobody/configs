@@ -7,13 +7,14 @@ set.clipboard = 'unnamed'
 
 set.number = true
 
+set.gdefault = true
 set.scrolloff = 5
 set.cursorline = true
 set.foldcolumn = '1'
 set.smartindent = false
 set.expandtab = true
-set.shiftwidth = 2
-set.softtabstop = 2
+-- set.shiftwidth = 2
+-- set.softtabstop = 2
 set.ignorecase = true
 set.wildignorecase = true
 set.wildignore:append "**/node_modules/"
@@ -22,12 +23,14 @@ set.termguicolors = true
 set.swapfile = false
 set.updatetime = 300
 
+-- set.list = true
 set.listchars = {
-  tab = '>·',
+  tab = '▏ ',
+  multispace = '▏ ',
+  leadmultispace = '▏ ',
   trail = '~',
   extends = '>',
-  precedes = '<',
-  space = '␣'
+  precedes = '<'
 }
 
 -- Powershell options:
@@ -45,10 +48,11 @@ vim.keymap.set('n', 'K', '<NOP>', { remap = true })
 vim.keymap.set('n', 's', '<C-w>')
 
 vim.keymap.set('n', '<Leader>ov', ':e ~/AppData/Local/nvim/init.lua<CR>')
-vim.keymap.set('n', '<Leader>ocs', ':e ~/AppData/Local/nvim/lua/eviline.lua<CR>')
-vim.keymap.set('n', '<Leader>oa', ':e ~/AppData/Roaming/alacritty/alacritty.yml<CR>')
 vim.keymap.set('n', '<Leader>vr', ':so ~/AppData/Local/nvim/init.lua<CR>')
 vim.keymap.set('n', '<Leader>tl', ':set list!<CR>')
+
+vim.keymap.set('n', 'j', 'gj')
+vim.keymap.set('n', 'k', 'gk')
 
 vim.keymap.set('n', '<ESC>', ':noh<CR>', { silent = true })
 
@@ -60,6 +64,13 @@ vim.keymap.set('n', '<leader>hi', function()
   vim.cmd [[ 
     echo synIDattr(synID(line('.'), col('.'), 1), 'name') . ' -> ' . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')
   ]]
+end)
+
+vim.keymap.set('n', '<leader>pguid', function()
+  vim.cmd [[
+    e ~/Documents/Github/Netvisor.net/Webinterface/web.LocalDevelopment.config
+  ]]
+  vim.cmd [[ normal 12G$2F"lvi"h ]]
 end)
 
 vim.opt.path:remove "/usr/include"
@@ -97,28 +108,8 @@ vim.api.nvim_create_autocmd('BufEnter', {
   command = 'start!'
 })
 
-vim.api.nvim_create_autocmd('FileType', {
-  group = aumisc,
-  pattern = 'aspx',
-  command = 'set ft=vb'
-})
-
-vim.keymap.set('n', '<leader>e', ':Explore<CR>', { silent = true })
-vim.api.nvim_create_autocmd('FileType', {
-  group = aumisc,
-  pattern = 'netrw',
-  callback = function()
-    local set = function(key, cmd) 
-      vim.keymap.set('n', key, cmd, { buffer = true, silent = true, remap = true }) 
-    end
-
-    set('h', [[/\.\.\/<CR><CR><ESC>]])
-    set('l', '<CR>')
-    set('s', '<C-w>')
-    set('<leader>', '<leader>')
-    set('<leader>q', ':q<CR>')
-  end
-})
+vim.keymap.set('n', '<leader>e', ':Oil --float<CR>', { silent = true })
+vim.cmd[[:command! -nargs=1 Browse silent execute '!explorer' shellescape(<q-args>,1)]]
 
 vim.api.nvim_create_autocmd('BufEnter', {
   group = aumisc,
@@ -131,17 +122,17 @@ vim.api.nvim_create_autocmd('BufEnter', {
   end
 })
 
-vim.api.nvim_create_autocmd('BufReadPre', {
+vim.api.nvim_create_autocmd('BufReadPost', {
   group = aumisc,
   pattern = '*',
   callback = function()
     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()))
-    if ok and stats and (stats.size > 1000000) then
+    if ok and stats and (stats.size > 100000) then
       vim.b.large_buf = true
       vim.cmd("syntax clear")
       vim.cmd("IndentBlanklineDisable") -- disable indent-blankline.nvim
-      vim.opt_local.foldmethod = "manual"
-      vim.opt_local.spell = false
+      vim.b.foldmethod = "manual"
+      vim.b.spell = false
     else
       vim.b.large_buf = false
     end
@@ -189,12 +180,7 @@ require('packer').startup(function(use)
 
   use 'lukas-reineke/indent-blankline.nvim'
 
-  use {
-    'glepnir/galaxyline.nvim',
-    branch = 'main',
-    config = function() require('statusline') end,
-    requires = { 'kyazdani42/nvim-web-devicons' }
-  }
+  use 'feline-nvim/feline.nvim'
 
   use { 'lewis6991/gitsigns.nvim', config = function() require('gitsigns').setup() end }
 
@@ -211,6 +197,7 @@ require('packer').startup(function(use)
 
   use 'tpope/vim-fugitive'
   use 'tpope/vim-rhubarb'
+  use 'pwntester/octo.nvim'
 
   use { 
     'nvim-telescope/telescope.nvim',
@@ -221,13 +208,19 @@ require('packer').startup(function(use)
     }
   }
 
+  use 'NMAC427/guess-indent.nvim'
+
   use 'dbakker/vim-projectroot'
 
   use 'christoomey/vim-sort-motion'
   use 'numToStr/Comment.nvim' 
 
+  use 'gbprod/substitute.nvim'
+
   use 'brenoprata10/nvim-highlight-colors'
   use 'ray-x/aurora'
+  use 'LunarVim/horizon.nvim'
+  use { "catppuccin/nvim", as = "catppuccin" }
 
   use 'booperlv/nvim-gomove'
 
@@ -235,6 +228,9 @@ require('packer').startup(function(use)
   use 'windwp/nvim-ts-autotag'
   use "windwp/nvim-autopairs"
   use 'Wansmer/sibling-swap.nvim'
+
+  use 'andrewradev/linediff.vim'
+  use 'Wansmer/treesj'
 
   use 'JoosepAlviste/nvim-ts-context-commentstring'
 
@@ -250,8 +246,16 @@ require('packer').startup(function(use)
   use 'hrsh7th/cmp-nvim-lsp-document-symbol'
   use 'folke/trouble.nvim'
 
+  use 'mrcjkb/rustaceanvim'
+
+  use 'Hoffs/omnisharp-extended-lsp.nvim'
+
+  use 'kevinhwang91/nvim-hlslens'
+
   use 'mfussenegger/nvim-dap'
   use 'rcarriga/nvim-dap-ui'
+
+  use 'stevearc/oil.nvim'
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -260,6 +264,37 @@ require('packer').startup(function(use)
   end
 end)
 
+require("octo").setup()
+
+local kopts = {noremap = true, silent = true}
+
+vim.api.nvim_set_keymap('n', 'n',
+    [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', 'N',
+    [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', '*', [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', '#', [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+
+vim.keymap.set("x", "s", require('substitute').visual, { noremap = true })
+
+require('statusline')
+
+require('treesj').setup({})
+require('guess-indent').setup({})
+require('hlslens').setup()
+
+require('oil').setup({
+  keymaps = {
+    ["<C-l>"] = "actions.select",
+    ["<C-h>"] = "actions.parent",
+    ["q"] = "actions.close"
+  }
+})
+
 require('colorizer').setup()
 
 require('toggleterm').setup({
@@ -267,14 +302,20 @@ require('toggleterm').setup({
 })
 vim.keymap.set('n', '<Leader>ot', ':ToggleTerm size=80 direction=vertical dir=git_dir<CR>')
 
-local lazygit = require('toggleterm.Terminal').Terminal:new({ 
-  cmd = 'lazygit', 
-  hidden = true, 
-  dir = 'git_dir',
-  direction = 'float'
-})
-
 function lazygit_toggle()
+  local lazygit = require('toggleterm.Terminal').Terminal:new({ 
+    cmd = 'lazygit', 
+    hidden = true, 
+    dir = 'git_dir',
+    direction = 'float',
+
+    on_open = function(term)
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-h>", "", { noremap = true })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-j>", "", { noremap = true })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-k>", "", { noremap = true })
+      vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<C-l>", "", { noremap = true })
+    end
+  })
   lazygit:toggle()
 end
 
@@ -293,7 +334,23 @@ vim.keymap.set('n', '<Leader>og', function() lazygit_toggle() end, { noremap = t
 --
 -- vim.keymap.set('n', '<Leader>olf', function() lf_toggle() end, { noremap = true, silent = true })
 
-require('filetype').setup({})
+local aspxFilesFn = function()
+  vim.bo.filetype = "vb"
+  vim.bo.bomb = true
+end
+
+require('filetype').setup({
+  overrides = {
+    literal = {
+      ["nv-styles.css"] = ''
+    },
+    function_extensions = {
+      ["aspx"] = aspxFilesFn,
+      ["asp"] = aspxFilesFn,
+      ["vb"] = aspxFilesFn
+    }
+  }
+})
 
 require('nvim-lightbulb').setup({
   autocmd = {
@@ -352,28 +409,51 @@ require('Comment').setup({
 
 require('sibling-swap').setup()
 
-require('gomove').setup()
+require('gomove').setup({
+  map_defaults = false
+})
+vim.keymap.set('x', '<S-k>', '<Plug>GoVMLineUp' , {})
+vim.keymap.set('x', '<S-j>', '<Plug>GoVMLineDown', {})
+vim.keymap.set('x', '<S-l>', '<Plug>GoVMLineRight' , {})
+vim.keymap.set('x', '<S-h>', '<Plug>GoVMLineLeft', {})
+-- vim.keymap.set('x', '<C-k>', '<Plug>GoVDLineUp' , {})
+-- vim.keymap.set('x', '<C-j>', '<Plug>GoVDLineDown', {})
 
 require('nvim-autopairs').setup()
 
 vim.keymap.set('n', '<leader>gb', ':Git blame<CR>')
-vim.keymap.set('n', '<leader>gh', ':GBrowse<CR>')
+vim.keymap.set({ 'n', 'x' }, '<leader>gh', ':GBrowse<CR>')
 vim.keymap.set('n', '<leader>gr', ':Gread<CR>')
 
 vim.keymap.set('i', '<C-e>', '<Plug>(emmet-expand-abbr)', { silent = true })
+
+local fileTypesToIgnore = {
+  'help',
+  '',
+  'toggleterm',
+  'oil',
+  'git',
+  'octo_panel',
+  'fugitiveblame'
+}
+
+function string.starts(String, Start)
+   return string.sub(String, 1, string.len(Start)) == Start
+end
 
 local projectau = vim.api.nvim_create_augroup('ProjectAU', {clear = true})
 vim.api.nvim_create_autocmd('BufEnter', {
   group = projectau,
   pattern = '*',
   callback = function()
-    if vim.bo.filetype == 'help' then
-      return
+    for k,v in ipairs(fileTypesToIgnore) do
+      if string.lower(vim.bo.filetype) == v then
+        return
+      end
     end
-    if vim.bo.filetype == '' then
-      return
-    end
-    if vim.bo.filetype == 'toggleterm' then
+
+    local fileName = vim.api.nvim_buf_get_name(0)
+    if string.starts(fileName, 'octo://') then
       return
     end
 
@@ -383,18 +463,37 @@ vim.api.nvim_create_autocmd('BufEnter', {
 
 local actions = require('telescope.actions')
 local builtin = require('telescope.builtin')
+local previewers = require("telescope.previewers")
+
+local new_maker = function(filepath, bufnr, opts)
+  opts = opts or {}
+
+  filepath = vim.fn.expand(filepath)
+  vim.loop.fs_stat(filepath, function(_, stat)
+    if not stat then return end
+    if stat.size > 100000 then
+      return
+    else
+      previewers.buffer_previewer_maker(filepath, bufnr, opts)
+    end
+  end)
+end
 
 require('telescope').setup({
   defaults = {
+    path_display = { 'truncate' },
+    buffer_previewer_maker = new_maker,
     file_ignore_patterns = { "node_modules" },
     mappings = {
       i = {
-        ['<esc>'] = actions.close
+        ['<esc>'] = actions.close,
+        ['<C-u>'] = false,
       }
     }
   }
 })
 
+vim.keymap.set('n', '<leader>;', builtin.resume)
 vim.keymap.set('n', '<leader>cs', function() builtin.colorscheme({ enable_preview = true }) end)
 vim.keymap.set('n', '<leader>tsl', builtin.builtin)
 vim.keymap.set('n', '<leader>tst', builtin.treesitter)
@@ -403,8 +502,8 @@ vim.keymap.set('n', '<leader>gls', builtin.git_stash)
 vim.keymap.set('n', '<leader>fz', function() builtin.find_files({ no_ignore = true, no_ignore_parent = true }) end)
 vim.keymap.set('n', '<leader>fb', function() builtin.buffers({ sort_lastused = true, ignore_current_buffer = true, sort_mru = true }) end)
 vim.keymap.set('n', '<leader>fl', builtin.live_grep)
-vim.keymap.set('n', '<leader>fgp', function() builtin.find_files({ cwd = '~/Documents/Projects' }) end)
-vim.keymap.set('n', '<leader>fgsp', function() builtin.find_files({ cwd = '~/Documents/Projects', no_ignore = true, no_ignore_parent = true }) end)
+vim.keymap.set('n', '<leader>fgp', function() builtin.find_files({ cwd = '~/Documents/Github' }) end)
+vim.keymap.set('n', '<leader>fgsp', function() builtin.find_files({ cwd = '~/Documents/Github', no_ignore = true, no_ignore_parent = true }) end)
 vim.keymap.set('n', '<leader>gs', builtin.git_status)
 
 require('indent_blankline').setup({
@@ -414,7 +513,7 @@ require('indent_blankline').setup({
 
 require('treesitter-context').setup()
 require('nvim-treesitter.configs').setup {
-  ensure_installed = { 'javascript', 'typescript', 'json', 'c_sharp', 'css', 'dockerfile', 'dot', 'html', 'python', 'lua', 'vim', 'query', 'c', 'cpp' },
+  ensure_installed = { 'javascript', 'typescript', 'json', 'c_sharp', 'css', 'dockerfile', 'dot', 'html', 'rust', 'python', 'lua', 'vim', 'query', 'c', 'cpp' },
   playground = {
     enable = true
   },
@@ -445,10 +544,11 @@ require('nvim-treesitter.configs').setup {
   }
 }
 
-vim.cmd 'colorscheme aurora'
+vim.cmd.colorscheme 'catppuccin-mocha'
 vim.cmd [[let g:terminal_color_8 = '#dc143c']] -- Terminal Error
 
 vim.g.ctrlsf_ignore_dir = { 'node_modules' }
+vim.g.ctrlsf_position = "right"
 
 vim.keymap.set('n', '<leader>fp', ':CtrlSF ')
 vim.keymap.set('n', '<leader>fc', '<Plug>CtrlSFCwordExec')
@@ -473,51 +573,70 @@ local function has_value(tab, val)
   return false
 end
 
-local on_attach = function(client, bufnr)
-  local bufopts = { noremap=true, silent=true, buffer=bufnr }
+local enumLSP = {
+  ['tsserver'] = 1,
+  ['csharp_ls'] = 2,
+  ['rustaceanvim'] = 3
+}
 
-  local augroup = vim.api.nvim_create_augroup('LSP_au', { clear = true })
-  vim.api.nvim_create_autocmd('CursorHold', {
-    group = augroup,
-    pattern = '*',
-    callback = function()
-      vim.diagnostic.open_float(nil, { focus = false, focusable = false })
-    end
-  })
+local on_attach = function(lsp)
+  local keymaps = function(bufnr)
+    local bufopts = { noremap=true, silent=true, buffer=bufnr }
 
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-  vim.keymap.set('n' ,'<leader>K', vim.lsp.buf.signature_help, bufopts)
-  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+    vim.keymap.set('n' ,'<leader>K', vim.lsp.buf.signature_help, bufopts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+  end
 
-  local jsx = {
-    'jsx_element',
-    'jsx_attribute',
-    'jsx_text',
-    'jsx_expression',
-    'jsx_opening_element',
-    'jsx_closing_element'
-  }
+  local jsxFloat = function(augroup)
+    local jsx = {
+      'jsx_element',
+      'jsx_attribute',
+      'jsx_text',
+      'jsx_expression',
+      'jsx_opening_element',
+      'jsx_closing_element'
+    }
 
-  vim.api.nvim_create_autocmd('CursorHoldI', {
-    group = augroup,
-    pattern = '*',
-    callback = function()
-      local node = ts_utils.get_node_at_cursor()
-      if not node then
-        return
+    vim.api.nvim_create_autocmd('CursorHoldI', {
+      group = augroup,
+      pattern = '*',
+      callback = function()
+        local node = ts_utils.get_node_at_cursor()
+        if not node then
+          return
+        end
+
+        local name = node:type()
+        if has_value(jsx, name) then
+          lsp_sig.toggle_float_win()
+        end
       end
+    })
+  end
 
-      local name = node:type()
-      if has_value(jsx, name) then
-        lsp_sig.toggle_float_win()
+  return function(client, bufnr)
+
+    local augroup = vim.api.nvim_create_augroup('LSP_au', { clear = true })
+    vim.api.nvim_create_autocmd('CursorHold', {
+      group = augroup,
+      pattern = '*',
+      callback = function()
+        vim.diagnostic.open_float(nil, { focus = false, focusable = false })
       end
-    end
-  })
+    })
 
-  lsp_sig.on_attach({}, bufnr)
+    keymaps(bufnr)
+
+    if lsp == enumLSP.tsserver then
+      jsxFloat(augroup)
+    end
+
+    lsp_sig.on_attach({}, bufnr)
+  end
 end
 
 local lsp_flags = {
@@ -535,11 +654,19 @@ vim.diagnostic.config({
 local has_words_before = function()
   unpack = unpack or table.unpack
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('[%s)}]') == nil
 end
 
 local cmp = require('cmp')
 local luasnip = require('luasnip')
+
+local function cmp_confirm(fallback)
+  if cmp.visible() and cmp.get_active_entry() then
+    cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true })
+  else
+    fallback()
+  end
+end
 
 cmp.setup({
   window = {
@@ -554,9 +681,10 @@ cmp.setup({
   mapping = cmp.mapping.preset.insert({
     ['<C-Space>'] = cmp.mapping.complete(),
     ['<C-e>'] = cmp.mapping.abort(),
-    ['<CR>'] = cmp.mapping.confirm({ 
-      select = true,
-      behavior = cmp.ConfirmBehavior.Replace
+    ['<CR>'] = cmp.mapping({ 
+      i = cmp_confirm,
+      s = cmp.mapping.confirm({ select = true }),
+      c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true })
     }),
     ['<Tab>'] = function(fallback)
       if cmp.visible() then
@@ -579,6 +707,9 @@ cmp.setup({
       end
     end,
   }),
+  experimental = {
+    ghost_text = true
+  },
   sources = cmp.config.sources({
     { name = 'nvim_lua' },
     { name = 'nvim_lsp' },
@@ -589,7 +720,13 @@ cmp.setup({
 })
 
 cmp.setup.cmdline({ '/', '?' }, {
-  mapping = cmp.mapping.preset.cmdline(),
+  mapping = cmp.mapping.preset.cmdline({
+    ["<CR>"] = cmp.mapping({
+      i = cmp_confirm,
+      s = cmp.mapping.confirm({ select = false }),
+      c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
+    })
+  }),
   sources = cmp.config.sources({
     { name = 'buffer' },
     { name = 'nvim_lsp_document_symbol' },
@@ -598,14 +735,22 @@ cmp.setup.cmdline({ '/', '?' }, {
 })
 
 cmp.setup.cmdline(':', {
-  mapping = cmp.mapping.preset.cmdline(),
+  mapping = cmp.mapping.preset.cmdline({
+    ["<CR>"] = cmp.mapping({
+      i = cmp_confirm,
+      s = cmp.mapping.confirm({ select = false }),
+      c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
+    })
+  }),
   sources = cmp.config.sources({
-    name = 'cmdline',
-    option = {
-      ignore_cmds = { 'Man', '!' }
-    }
-  }, {
+    {
+      name = 'cmdline',
+      option = {
+        ignore_cmds = { 'Man', '!' }
+      }
+    }, {
       name = 'cmdline_history'
+    }
   })
 })
 
@@ -617,18 +762,38 @@ function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
 end
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
+local lspconfig = require('lspconfig')
 
-require('lspconfig').tsserver.setup({
-  on_attach = on_attach,
+lspconfig.tsserver.setup({
+  on_attach = on_attach(enumLSP.tsserver),
   handlers = handlers,
   flags = lsp_flags,
   capabilities = capabilities,
 })
 
-require('lspconfig').csharp_ls.setup({
-  on_attach = on_attach,
-  handlers = handlers,
+local pid = vim.fn.getpid()
+local omnisharp_exe = 'C:\\Users\\eveliina.keski-rahko\\omnisharp\\OmniSharp.exe'
+lspconfig.omnisharp.setup({
+  on_attach = on_attach(enumLSP.csharp_ls),
+  handlers = {
+    ["textDocument/definition"] = require('omnisharp_extended').handler
+  },
+  cmd = { omnisharp_exe },
   flags = lsp_flags,
+  filetypes = { "cs", "vb", "aspx" },
+  enable_ms_build_load_projects_on_demand = true,
+  analyze_open_documents_only = true,
+  enable_roslyn_analyzers = true,
   capabilities = capabilities,
 })
 
+vim.g.rustaceanvim = {
+  server = {
+    capabilities = capabilities,
+    on_attach = function(client, bufnr)
+      on_attach(enumLSP.rustaceanvim)(client, bufnr)
+      vim.keymap.set("n", "<C-space>", function() vim.cmd.RustLsp({ "hover", "actions" }) end, { buffer = bufnr })
+      vim.keymap.set("n", "<leader>rr", function() vim.cmd("RustRun") end, { buffer = bufnr })
+    end
+  }
+}
